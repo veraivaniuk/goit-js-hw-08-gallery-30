@@ -45,6 +45,8 @@ const renderMarkup = gallery.forEach((image) => {
 //2.Реализация делегирования на галерее ul.js-gallery и получение url 
 //большого изображения.
 const callbackOpenLightbox = (evt) => {
+  //console.log(evt.target.attributes.alt);
+  //console.log(lightboxImgEl.attributes)
   if (evt.target.nodeName !== "IMG") {
     return
   }
@@ -52,6 +54,7 @@ const callbackOpenLightbox = (evt) => {
   lightboxEl.classList.add('is-open');
   //4.Подмена значения атрибута src элемента img.lightbox__image.
   lightboxImgEl.attributes.src.value = evt.target.dataset.source;
+  lightboxImgEl.attributes.alt.value = evt.target.attributes.alt.value;
 
   //console.log(modalImgEl.attributes.src.value);
   //console.log(evt.target.dataset.source);
@@ -63,28 +66,31 @@ const callbackCloseLightbox = (evt) => {
   if (evt.keyCode == 27) {
     lightboxEl.classList.remove('is-open');
     lightboxImgEl.attributes.src.value = "";
-  }
+    lightboxImgEl.attributes.alt.value = "";
+  };
   //6.Очистка значения атрибута src элемента img.lightbox__image. 
 //Это необходимо для того, чтобы при следующем открытии модального окна, 
 //пока грузится изображение, мы не видели предыдущее.
     if (evt.target.nodeName === "BUTTON" || evt.target.classList.contains('lightbox__overlay')) {
     lightboxEl.classList.remove('is-open');
     lightboxImgEl.attributes.src.value = "";
+    lightboxImgEl.attributes.alt.value = "";
   }
 };
 
-const callbackPagination = evt => {
-  console.log(evt.target.parentNode.parentNode.previousSibling.firstChild.childNodes[0].dataset.source);
-  console.log(lightboxImgEl.attributes.src.value )
+//const callbackСarousel = evt => {
+ // console.log(evt.target);
+//  console.log(lightboxImgEl.attributes.src.value )
 
-  if (evt.keyCode == 37) {
-       lightboxImgEl.attributes.src.value = evt.target.parentNode.parentNode.previousSibling.firstChild.childNodes[0].dataset.source
-    }
+  // if (evt.keyCode == 37) {
+
+  //      lightboxImgEl.attributes.src.value = evt.target.parentNode.parentNode.previousSibling.firstChild.childNodes[0].dataset.source
+  //   }
   //if (e.keyCode == '39') {
        // right arrow
     //}
-  console.log(evt);
-}
+  //console.log(evt);
+//}
 
 ulGalleryEl.addEventListener('click', callbackOpenLightbox);
 //- Закрытие модального окна по нажатию клавиши `ESC`.
@@ -95,13 +101,10 @@ btnCloseLightboxEl.addEventListener('click', callbackCloseLightbox);
 // - Закрытие модального окна по клику на `div.lightbox__overlay`.
 lightboxOverlayEl.addEventListener('click', callbackCloseLightbox);
 
-lightboxEl.addEventListener('keydown', callbackPagination)
-
-
-
-
-
 
 // - Пролистывание изображений галереи в открытом модальном окне клавишами "влево"
 //   и "вправо".
+//ulGalleryEl.addEventListener('keydown', callbackСarousel);
+
+
 
