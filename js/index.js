@@ -14,85 +14,110 @@ import gallery from './gallery-items.js';
   </a>
 </li>*/
 
-const originalOfGallary = gallery.map((image)=>{image.original})
-
 const ulGalleryEl = document.querySelector('.js-gallery');
 const lightboxEl = document.querySelector('.js-lightbox');
 const lightboxImgEl = document.querySelector('.lightbox__image');
 const btnCloseLightboxEl = document.querySelector('button[data-action= "close-lightbox"]');
-const lightboxOverlayEl = document.querySelector(".lightbox__overlay")
+const lightboxOverlayEl = document.querySelector(".lightbox__overlay");
+let activImgIndex = null;
 
-const renderMarkup = gallery.forEach((image) => {
+const markup = gallery.map((image, index) => {
   const liGallery = document.createElement('li');
   liGallery.classList.add('gallery__item');
 
   const aGallery = document.createElement('a');
   aGallery.classList.add('gallery__link');
-  aGallery.setAttribute('href', '#');
-  //console.log(liGallery);
+  aGallery.setAttribute('href', image.original);
 
   const imgGallery = document.createElement('img');
   imgGallery.classList.add('gallery__image');
-  imgGallery.setAttribute('src', `${image.preview}`);
-  imgGallery.dataset.source = `${image.original}`;
-  imgGallery.setAttribute('alt', `${image.description}`);
-  //console.dir(imgGallery);
+  imgGallery.setAttribute('src', image.preview);
+  imgGallery.dataset.source = image.original;
+  imgGallery.dataset.index = index;
+  imgGallery.setAttribute('alt', image.description);
   aGallery.append(imgGallery);
   liGallery.append(aGallery);
-  ulGalleryEl.append(liGallery);
-})
+  return liGallery
+});
+
+
+ulGalleryEl.append(...markup);
 
 //2.Реализация делегирования на галерее ul.js-gallery и получение url 
 //большого изображения.
 const callbackOpenLightbox = (evt) => {
-  //console.log(evt.target.attributes.alt);
-  //console.log(lightboxImgEl.attributes)
+  evt.preventDefault();
+  activImgIndex = +evt.target.dataset.index;
+  console.log(activImgIndex);
+//console.log(activImgIndex);
   if (evt.target.nodeName !== "IMG") {
-    return
+    return 
   }
-  //3.Открытие модального окна по клику на элементе галереи.
+//3.Открытие модального окна по клику на элементе галереи.
   lightboxEl.classList.add('is-open');
-  //4.Подмена значения атрибута src элемента img.lightbox__image.
-  lightboxImgEl.attributes.src.value = evt.target.dataset.source;
-  lightboxImgEl.attributes.alt.value = evt.target.attributes.alt.value;
 
-  //console.log(modalImgEl.attributes.src.value);
-  //console.log(evt.target.dataset.source);
+//4.Подмена значения атрибута src, alt элемента img.lightbox__image.
+  const dataSource = evt.target.dataset.source;
+  lightboxImgEl.src = dataSource;
+
+  const altValue = evt.target.attributes.alt.value;
+  lightboxImgEl.alt = altValue;
+  return activImgIndex;
 };
 
+
 const callbackCloseLightbox = (evt) => {
-  //console.log(evt)
+  evt.preventDefault();
   // - Закрытие модального окна по нажатию клавиши `ESC`.
   if (evt.keyCode == 27) {
     lightboxEl.classList.remove('is-open');
-    lightboxImgEl.attributes.src.value = "";
-    lightboxImgEl.attributes.alt.value = "";
+    lightboxImgEl.src = "";
+    lightboxImgEl.alt = "";
   };
-  //6.Очистка значения атрибута src элемента img.lightbox__image. 
+//6.Очистка значения атрибута src элемента img.lightbox__image. 
 //Это необходимо для того, чтобы при следующем открытии модального окна, 
 //пока грузится изображение, мы не видели предыдущее.
     if (evt.target.nodeName === "BUTTON" || evt.target.classList.contains('lightbox__overlay')) {
     lightboxEl.classList.remove('is-open');
-    lightboxImgEl.attributes.src.value = "";
-    lightboxImgEl.attributes.alt.value = "";
+    lightboxImgEl.src = "";
+    lightboxImgEl.alt = "";
   }
 };
 
-//const callbackСarousel = evt => {
- // console.log(evt.target);
-//  console.log(lightboxImgEl.attributes.src.value )
-
-  // if (evt.keyCode == 37) {
-
-  //      lightboxImgEl.attributes.src.value = evt.target.parentNode.parentNode.previousSibling.firstChild.childNodes[0].dataset.source
-  //   }
-  //if (e.keyCode == '39') {
-       // right arrow
-    //}
-  //console.log(evt);
-//}
+const callbackСarousel = evt => {
+  //console.log(activImgIndex);
+  if (evt.key === "ArrowRight" && activImgIndex < gallery.length-1 ) {
+    activImgIndex +=1;
+    lightboxImgEl.src = gallery[activImgIndex].original;
+    lightboxImgEl.alt = gallery[activImgIndex].description;
+    console.log(activImgIndex);
+    return;
+  }
+  if (evt.key === "ArrowRight" && activImgIndex === gallery.length-1) {
+    activImgIndex = 0;
+    lightboxImgEl.src = gallery[activImgIndex].original;
+    lightboxImgEl.alt = gallery[activImgIndex].description;
+    console.log(activImgIndex);
+    return;
+  }
+  if (evt.key === "ArrowLeft" && activImgIndex ===0) {
+    activImgIndex = gallery.length - 1;
+    lightboxImgEl.src = gallery[activImgIndex].original;
+    lightboxImgEl.alt = gallery[activImgIndex].description;
+    console.log(activImgIndex);
+    return;
+  };
+  if (evt.key === "ArrowLeft" && activImgIndex >= 0 ) {
+    activImgIndex -= 1;
+    lightboxImgEl.src = gallery[activImgIndex].original;
+    lightboxImgEl.alt = gallery[activImgIndex].description;
+    console.log(activImgIndex); 
+    return;
+  };
+}
 
 ulGalleryEl.addEventListener('click', callbackOpenLightbox);
+
 //- Закрытие модального окна по нажатию клавиши `ESC`.
 ulGalleryEl.addEventListener('keydown', callbackCloseLightbox);
 //5.Закрытие модального окна по клику на кнопку 
@@ -104,7 +129,8 @@ lightboxOverlayEl.addEventListener('click', callbackCloseLightbox);
 
 // - Пролистывание изображений галереи в открытом модальном окне клавишами "влево"
 //   и "вправо".
-//ulGalleryEl.addEventListener('keydown', callbackСarousel);
+window.addEventListener('keyup', callbackСarousel);
+//lightboxOverlayEl.addEventListener('keydown', callbackСarousel);
 
 
 
